@@ -1,0 +1,42 @@
+# Instalação de Bibliotecas Python:
+# devem ser feitas através do cmd do windows na pasta onde o programa está instalado: Python\Python39\Scripts
+# Tutorial: https://www.youtube.com/watch?v=MvUMAvmviaE
+    # comandos: pip install BIBLIOTECA
+    # pip install googlemaps
+    # pip install pandas
+
+# Importar bibliotecas para o código:
+import googlemaps
+import pandas as pd
+import time
+
+# Registro e documentação Google no site: https://developers.google.com/maps/
+# Gerando conexão com API Google:
+API_KEY = 'SUA_API-KEY' 
+map_client = googlemaps.Client(API_KEY)
+
+loc = (latitude, longitude) #Localização de referência = centroide raio
+search_string = 'termo/palavra a ser pesquisado'
+distance = 6000 #valor em metros
+business_list = []
+
+response = map_client.places_nearby(
+    location = loc,
+    keyword = search_string,
+    radius = distance )
+business_list.extend(response.get('results'))
+next_page_token = response.get('next_page_token')
+
+while next_page_token:
+    time.sleep(2) # também pode testar com 3 segundos
+    response = map_client.places_nearby(
+        location = loc,
+        keyword = search_string,
+        radius = distance,
+        page_token = next_page_token )
+    business_list.extend(response.get('results'))
+    next_page_token = response.get('next_page_token')
+
+df = pd.DataFrame(business_list)
+df['url'] = 'https://www.google.com/maps/place/?q=place_id:' + df['place_id']
+df.to_excel(NOME-DO-ARQUIVO.xlsx'.format(search_string), index=False)
